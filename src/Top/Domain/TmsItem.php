@@ -1,8 +1,5 @@
 <?php
-
 namespace Top\Domain;
-
-
 /**
  * 运单信息
  * @author auto create
