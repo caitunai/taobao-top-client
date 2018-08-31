@@ -8,7 +8,6 @@
  * file that was distributed with this source code.
  */
 return [
-
     'default' => 'app',
 
     'connections' => [
@@ -16,6 +15,7 @@ return [
             'app_key'    => env('TAOBAO_APP_KEY', 'APP KEY'),
             'app_secret' => env('TAOBAO_APP_SECRET', 'APP SECRET'),
             'format'     => 'json',
-        ]
-    ]
+            'log_path'   => env('TOP_SDK_WORK_DIR', '/tmp/logs/'),
+        ],
+    ],
 ];

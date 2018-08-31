@@ -1,4 +1,5 @@
 <?php
+
 namespace Oyleanu\TopClient;
 
 use Top\TopClient;
@@ -15,8 +16,10 @@ class TopClientFactory
     public function make(array $config)
     {
         $config = $this->getConfig($config);
+
         return $this->getClient($config);
     }
+
     /**
      * Get the configuration data.
      *
@@ -32,6 +35,7 @@ class TopClientFactory
             || !array_key_exists('app_secret', $config)) {
             throw new \InvalidArgumentException('The top client requires api keys.');
         }
+
         return array_only($config, ['app_key', 'app_secret', 'format']);
     }
 
@@ -44,10 +48,12 @@ class TopClientFactory
      */
     protected function getClient(array $config)
     {
-        $c = new TopClient;
+        $c = new TopClient();
         $c->appkey = $config['app_key'];
         $c->secretKey = $config['app_secret'];
         $c->format = isset($config['format']) ? $config['format'] : 'json';
+        $c->log_path = isset($config['log_path']) ? $config['log_path'] : env('TOP_SDK_WORK_DIR', '/tmp/logs/');
+
         return $c;
     }
 }
