@@ -36,7 +36,7 @@ class TopClientFactory
             throw new \InvalidArgumentException('The top client requires api keys.');
         }
 
-        return array_only($config, ['app_key', 'app_secret', 'format']);
+        return array_only($config, ['app_key', 'app_secret', 'format', 'log_path']);
     }
 
     /**
