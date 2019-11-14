@@ -24,6 +24,7 @@ class TopClient
     protected $apiVersion = '2.0';
 
     protected $sdkVersion = 'top-sdk-php-20151012';
+    protected $logger;
     public $log_path = '';
 
     public function getAppkey()
@@ -195,21 +196,19 @@ class TopClient
     protected function logCommunicationError($apiName, $requestUrl, $errorCode, $responseTxt)
     {
         $localIp = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : 'CLI';
-        $logger = new TopLogger();
-        $logger->conf['log_file'] = rtrim($this->log_path, '\\/').'/'.'top_comm_err_'.$this->appkey.'_'.date('Y-m-d').'.log';
-        $logger->conf['separator'] = '^_^';
+        $logger = $this->getLogger('comm');
         $logData = array(
-        date('Y-m-d H:i:s'),
-        $apiName,
-        $this->appkey,
-        $localIp,
-        PHP_OS,
-        $this->sdkVersion,
-        $requestUrl,
-        $errorCode,
-        str_replace("\n", '', $responseTxt),
+            date('Y-m-d H:i:s'),
+            $apiName,
+            $this->appkey,
+            $localIp,
+            PHP_OS,
+            $this->sdkVersion,
+            $requestUrl,
+            $errorCode,
+            str_replace("\n", '', $responseTxt),
         );
-        $logger->log($logData);
+        $logger->error($logData);
     }
 
     public function execute($request, $session = null, $bestUrl = null)
@@ -312,9 +311,8 @@ class TopClient
 
         //如果TOP返回了错误码，记录到业务错误日志中
         if (isset($respObject->code)) {
-            $logger = new TopLogger();
-            $logger->conf['log_file'] = rtrim($this->log_path, '\\/').'/'.'top_biz_err_'.$this->appkey.'_'.date('Y-m-d').'.log';
-            $logger->log(array(
+            $logger = $this->getLogger();
+            $logger->error(array(
                 date('Y-m-d H:i:s'),
                 $resp,
             ));
@@ -354,5 +352,28 @@ class TopClient
     private function getClusterTag()
     {
         return substr($this->sdkVersion, 0, 11).'-cluster'.substr($this->sdkVersion, 11);
+    }
+
+    public function getLogger(string $type = '')
+    {
+        if ($this->logger) {
+            return $this->logger;
+        }
+        $logger = new TopLogger();
+        if ($type === 'comm') {
+            $logger->conf['log_file'] = rtrim($this->log_path, '\\/').'/'.'top_comm_err_'.$this->appkey.'_'.date('Y-m-d').'.log';
+            $logger->conf['separator'] = '^_^';
+        } else {
+            $logger->conf['log_file'] = rtrim($this->log_path, '\\/').'/'.'top_biz_err_'.$this->appkey.'_'.date('Y-m-d').'.log';
+        }
+        return $logger;
+    }
+
+    public function setLogger($logger)
+    {
+        if ($logger && is_object($logger)) {
+            $this->logger = $logger;
+        }
+        return $this;
     }
 }
